@@ -15,7 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from Messenger import views
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.decorators.csrf import csrf_exempt
+from django.views.static import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('', views.index, name = "index"),
+    path('home/<phone>/', views.home, name = "home"),
+    path('send_message/', views.send_message, name = "send_message"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# if settings.DEBUG:
+#     urlpatterns += [
+#         path('media/(?P<path> .*)$', serve, { 'document_root':settings.MEDIA_ROOT, }),
+#     ]

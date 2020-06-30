@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+{% load static %}
+  <head>
+    <meta charset="utf-8">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div style=" background-color: #000000; height : 10px" class="container">
+
+    </div>
+  <div class="container">
+    <table width="100%">
+      <tr>
+      <td align="left"><h4><strong>Textify</strong> Because Text Messaging rocks</h4></td>
+      <td align="right"><h4>Logout</h4></td>
+    </tr>
+    </table>
+  </div>
+
+	<p><h1 align="center" id = "phone">{{ phone }}</h1></p>
+	<br>
+  <!-- <script type="text/javascript" src={% static 'js/home.js' %}></script> -->
+  <div class="container">
+    <form method="post" class="jumbotron" id = "formElem" enctype="multipart/form-data">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit" class="btn btn-primary" value="Send">
+    </form>
+  </div>
+
+  <div class="recent_conv container">
+      <table class="table table-striped" id="id_table">
+        {% for user_msg in user_msgs %}
+        <tr>
+          <td style=" width: 75px">
+              <img src="/media/profile/download.png" height="70px" width="70px">
+          </td>
+          <td style="margin-left:0px">
+            <h4>{{ user_msg.other_phone }}</h4>
+            {% if user_msg.is_from %}
+            sent : {{ user_msg.text }}
+            {% else %}
+            received : {{ user_msg.text }}
+            {% endif %}
+          </td>
+
+        </tr>
+        {% endfor %}
+      </table>
+  </div>
+
+  <div class="photos container">
+    <table class="table table-striped">
+      {% for user_photo in user_photos %}
+      <tr>
+        <td>
+          <img src={{ user_photo.url }}  height="300px" width="300px"><br>
+          Sent {{ user_photo.other_phone }}
+        </td>
+
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<script type="text/javascript">
+    console.log(window.location);
+    var loc = window.location;
+    var wsStart = 'ws://';
+    if (loc.protocol == 'https:'){
+        wsStart = 'wss://';
+    }
+    var endpoint = wsStart + loc.host + loc.pathname;
+    var socket = new WebSocket(endpoint)
+
+    let msg_to = document.getElementById('id_To');
+    let msg_text = document.getElementById('id_Text');
+    let msg_photo = document.getElementById('id_photo');
+
+    socket.onmessage = (e) => {
+      console.log('message', e.data);
+      var msg = JSON.parse(e.data)
+      console.log('msg', msg)
+      let table = document.getElementById('id_table')
+      // let tr_first = table.childNodes[0].innerHTML = 'jhaat';
+      let other_phone = document.createTextNode(msg['To'])
+      let text = document.createTextNode(msg['Text'])
+      let x = document.createElement('IMG');
+      x.setAttribute("src", "/media/profile/download.png");
+      x.setAttribute("width", "70px");
+      x.setAttribute("height", "70px");
+      let td2 = document.createElement('TD')
+      td2.appendChild(other_phone);
+      td2.appendChild(text);
+      // td2.style.margin-left = '0px';
+
+      let td1 = document.createElement('TD');
+      td1.appendChild(x)
+      let tr = document.createElement('TR');
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      table.insertBefore(tr, table.childNodes[0]);
+      table.className = "table-striped" + " container";
+      // let td_image = tr_first.firstChild
+
+      // let td2 = document.createElement("H4").appendChild(other_phone)
+      // let tr = document.createElement("TR");
+      // tr.appendChild(td_image);
+      // tr.appendChild(td2);
+      // table.insertBefore(tr_first, table.childNodes[0]);
+    }
+    socket.onopen = (e) => {
+      console.log('open', e)
+      formElem.onsubmit = (event) => {
+        event.preventDefault();
+        let data = {
+            'To' : msg_to.value,
+            'Text' : msg_text.value,
+            'photo' : msg_photo.value
+        }
+        socket.send(JSON.stringify(data))
+      }
+    }
+    socket.onerror = (e) => {
+      console.log('error', e)
+    }
+    socket.onclose = (e) => {
+      console.log('close', e)
+    }
+
+
+  // {% if show_prompt %}
+  // var person = prompt("Enter your phone number","")
+  // // if (person != null) {
+  // //     document.getElementById("phone").innerHTML =
+  // //     person;
+  // //   }
+  //   let phone = new FormData();
+  //   phone.append('phone', person);
+  //   let response = fetch('http://127.0.0.1:8000/home/', {
+  //     method : 'POST',
+  //     body : phone
+  //   });
+  //   {% endif %}
+
+
+  // formElem.onsubmit = async (e) => {
+  //   e.preventDefault();
+  //   let formData = new FormData(formElem)
+  //   formData.append('From', {{ phone }})
+  //   let response = await fetch('http://127.0.0.1:8000/send_message/', {
+  //     method : 'POST',
+  //     body : formData
+  //   });
+  //   let result = await response.json()
+  //   var form = document.getElementById("formElem");
+  //   form.reset();
+  //   alert(result.message);
+// }
+  </script>
+
+
+  </body>
+</html>

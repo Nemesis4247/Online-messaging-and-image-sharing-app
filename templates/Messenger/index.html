@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+  <div id="top">
+  textify says hello
+  </div>
+  <script type="text/javascript">
+  var person = prompt("Enter your phone number","");
+  // // document.getElementById("top").innerHTML = person;
+  let address = 'http://127.0.0.1:8000/home/' + person + '/'
+  console.log(address)
+  location.replace(address)
+
+  </script>
+  </body>
+</html>
