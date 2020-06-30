@@ -23,9 +23,10 @@ from django.views.static import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name = "index"),
-    path('home/<phone>/', views.home, name = "home"),
+    path('home/<str:phone>/', views.home, name = "home"),
     path('send_message/', views.send_message, name = "send_message"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 # if settings.DEBUG:
 #     urlpatterns += [

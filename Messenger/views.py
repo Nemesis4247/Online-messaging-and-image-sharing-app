@@ -8,7 +8,7 @@ from .forms import *
 def index(request):
     return render(request, 'Messenger/index.html')
 
-def home(request, phone = 000):
+def home(request, phone = "000"):
     form = MessageForm()
     mydict = {
         'form' : form,

@@ -5,6 +5,10 @@ from channels.consumer import AsyncConsumer
 from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
 
+
+import base64
+from django.core.files.base import ContentFile
+
 from .models import *
 
 class ChatConsumer(AsyncConsumer):
@@ -14,7 +18,7 @@ class ChatConsumer(AsyncConsumer):
 
         other_user = self.scope['url_route']['kwargs']['phone']
         me = self.scope['user']
-        # print(other_user, me)
+        print(other_user, me)
         self.chat_room = 'chat1';
         await self.channel_layer.group_add(
             self.chat_room,
@@ -28,6 +32,8 @@ class ChatConsumer(AsyncConsumer):
         print('receive', event)
         msg = event['text']
         data = json.loads(msg)
+        # print(data)
+        await self.create_message(data)
         await self.channel_layer.group_send(
             self.chat_room,
             {
@@ -43,3 +49,18 @@ class ChatConsumer(AsyncConsumer):
         })
     async def websocket_disconnect(self , event):
         print('disconnected', event)
+
+
+
+    @database_sync_to_async
+    def create_message(self, msg):
+        if msg['photo']=='':
+            Messages.objects.create(From = msg['From'], To = msg['To'], Text = msg['Text'])
+        else :
+            data = msg['photo']
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+            Messages.objects.create(From = msg['From'], To = msg['To'], Text = msg['Text'], photo = data)
