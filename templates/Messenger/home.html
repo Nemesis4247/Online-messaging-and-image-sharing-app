@@ -100,12 +100,16 @@ body {font-family: Arial;}
   </div>
 
   <div id="photos" class="tabcontent">
-      <table class="table table-striped">
+      <table class="table table-striped" id="id_table_photo">
         {% for user_photo in user_photos %}
         <tr>
           <td>
             <img src={{ user_photo.url }}  height="300px" width="300px"><br>
-            Sent {{ user_photo.other_phone }}
+            {% if user_photo.is_from %}
+            sent to : {{ user_photo.other_phone }}
+            {% else %}
+            received from : {{ user_photo.other_phone }}
+            {% endif %}
           </td>
 
         </tr>
@@ -156,8 +160,8 @@ body {font-family: Arial;}
       console.log('msg', msg)
 
       if ( msg['From']==phone || msg['To']==phone){
+        //display msg
         let table = document.getElementById('id_table')
-        // let tr_first = table.childNodes[0].innerHTML = 'jhaat';
         let h4 = document.createElement('H4');
         let other_phone = document.createTextNode(msg['To'])
         let text = document.createTextNode(msg['Text'])
@@ -167,6 +171,8 @@ body {font-family: Arial;}
         x.setAttribute("height", "70px");
 
         let send_receive = document.createTextNode('sent : ');
+
+
         if(msg['To']==phone){
             send_receive = document.createTextNode('received : ');
             other_phone = document.createTextNode(msg['From'])
@@ -185,25 +191,57 @@ body {font-family: Arial;}
         tr.appendChild(td2);
         table.insertBefore(tr, table.childNodes[0]);
         table.className = "table-striped" + " container";
+
+
+        //display received photo
+        if (msg['photo']){
+            let table_photo = document.getElementById('id_table_photo')
+            let x_photo = document.createElement('IMG');
+            x_photo.setAttribute("src", msg['photo']);
+            x_photo.setAttribute("width", "300px");
+            x_photo.setAttribute("height", "300px");
+
+            let send_receive_photo = document.createTextNode('   sent to : ');
+            let other_phone_photo = document.createTextNode(msg['To'])
+            if(msg['To']==phone){
+                send_receive_photo = document.createTextNode('   received from : ');
+                let other_phone_photo = document.createTextNode(msg['From'])
+            }
+            let tr_photo = document.createElement('TR');
+            let br_photo = document.createElement('BR');
+            tr_photo.appendChild(x_photo)
+            // tr_photo.appendChild(br_photo);
+            tr_photo.appendChild(send_receive_photo)
+            tr_photo.appendChild(other_phone_photo)
+            table_photo.insertBefore(tr_photo, table_photo.childNodes[0]);
+            table_photo.className = "table-striped" + " container";
+        }
       }
+
+
 
 
     }
     socket.onopen = (e) => {
       console.log('open', e)
-      formElem.onsubmit = (event) => {
+      formElem.onsubmit = async (event) => {
         event.preventDefault();
-        // console.log(msg_photo.value=='')
-        msg_photo.addEventListener("change", readFile);
-        // console.log(msg_photo_b64)
+        let formData = new FormData(formElem)
+        formData.append('From', {{ phone }})
+        let response = await fetch('http://127.0.0.1:8000/send_message/', {
+          method : 'POST',
+          body : formData
+        });
+        let result = await response.json()
+
+
+
+
         let data = {
             'From' : phone,
             'To' : msg_to.value,
             'Text' : msg_text.value,
             'photo' : msg_photo.value
-        }
-        if(msg_photo.value!=''){
-          data['photo'] = msg_photo_b64
         }
         socket.send(JSON.stringify(data))
         form = document.getElementById('formElem');
@@ -232,20 +270,8 @@ body {font-family: Arial;}
     evt.currentTarget.className += " active";
     }
 
-    function readFile() {
 
-      if (this.files && this.files[0]) {
-
-      var FR= new FileReader();
-
-      FR.addEventListener("load", function(e) {
-        msg_photo_b64 = e.target.result;
-      });
-
-      FR.readAsDataURL( this.files[0] );
-  }
-
-}
+// }
   // {% if show_prompt %}
   // var person = prompt("Enter your phone number","")
   // // if (person != null) {

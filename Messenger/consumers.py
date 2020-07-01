@@ -33,7 +33,7 @@ class ChatConsumer(AsyncConsumer):
         msg = event['text']
         data = json.loads(msg)
         # print(data)
-        await self.create_message(data)
+        await self.get_photo_url(data)
         await self.channel_layer.group_send(
             self.chat_room,
             {
@@ -53,14 +53,17 @@ class ChatConsumer(AsyncConsumer):
 
 
     @database_sync_to_async
-    def create_message(self, msg):
-        if msg['photo']=='':
-            Messages.objects.create(From = msg['From'], To = msg['To'], Text = msg['Text'])
-        else :
-            data = msg['photo']
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-            Messages.objects.create(From = msg['From'], To = msg['To'], Text = msg['Text'], photo = data)
+    def get_photo_url(self, msg):
+        # if msg['photo']=='':
+        obj = list(Messages.objects.filter(From = msg['From'], To = msg['To'], Text = msg['Text']))
+        if len(obj)!=0:
+            if msg['photo']!='':
+                msg['photo'] = obj[0].photo.url
+        # else :
+        #     data = msg['photo']
+        #     format, imgstr = data.split(';base64,')
+        #     ext = format.split('/')[-1]
+        #
+        #     data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        #
+        #     Messages.objects.create(From = msg['From'], To = msg['To'], Text = msg['Text'], photo = data)

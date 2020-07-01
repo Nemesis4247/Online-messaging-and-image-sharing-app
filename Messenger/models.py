@@ -14,3 +14,6 @@ class Messages(models.Model):
     Text = models.CharField(max_length = 1024, blank = True)
     date_time = models.DateTimeField(default = return_date_time)
     photo = models.ImageField(upload_to = 'images', blank = True)
+
+class PhotoBank(models.Model):
+    photo = models.ImageField(upload_to = 'images', blank = True)

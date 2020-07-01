@@ -39,6 +39,7 @@ def home(request, phone = "000"):
             if msg.photo :
                 user_photo["other_phone"] = msg.To
                 user_photo['url'] = msg.photo.url
+                user_photo['is_from'] = True
                 # print(user_photo)
                 user_photos.append(user_photo)
         if msg.To == user:
@@ -50,7 +51,8 @@ def home(request, phone = "000"):
             if msg.photo :
                 user_photo["other_phone"] = msg.From
                 user_photo['url'] = msg.photo.url
-                # print(user_photo)
+                user_photo['is_from'] = False
+                # print(user_photo['url'])
                 user_photos.append(user_photo)
     user_msgs.reverse()
     user_photos.reverse()
@@ -64,12 +66,18 @@ def home(request, phone = "000"):
 
 def send_message(request):
     if request.method == 'POST':
+        print(request.FILES)
         # print(request.POST)
         # print(request.POST['To'])
         # print(request.POST['From'])
         # Messages.objects.create(From = request.POST['From'], To = request.POST['To'], Text = request.POST['Text'])
-        form = MessageForm2(request.POST)
-        form.save(commit = True)
+        # data = request.POST.copy()
+        # data['From'] = phone
+        formComp = MessageForm2(request.POST)
+        fCp = formComp.save(commit = False)
+        if 'photo' in request.FILES:
+            fCp.photo = request.FILES['photo']
+        fCp.save()
         response = {
             'message' : 'Message sent'
         }
