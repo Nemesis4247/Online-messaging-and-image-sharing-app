@@ -1,12 +1,7 @@
 from .models import *
 from django import forms
 
-class PhotoForm(forms.ModelForm):
-    class Meta():
-        model = PhotoBank
-        fields = '__all__'
 
-# try to make this form in input html
 class MessageForm(forms.ModelForm):
     Text = forms.CharField(widget=forms.Textarea(attrs={"rows":5, "cols":20}))
     class Meta:
