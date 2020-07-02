@@ -224,7 +224,7 @@ body {font-family: Arial;}
       event.preventDefault();
       let formData = new FormData(formElem)
       formData.append('From', {{ phone }})
-      let response = await fetch('http://127.0.0.1:8000/send_message/', {
+      let response = await fetch('https://textify-rocks.herokuapp.com/send_message/', {
         method : 'POST',
         body : formData
       });
