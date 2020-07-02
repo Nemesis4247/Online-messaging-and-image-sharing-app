@@ -11,8 +11,12 @@
   </div>
   <script type="text/javascript">
   var person = prompt("Enter your phone number","");
-  // // document.getElementById("top").innerHTML = person;
-  let address = 'https://textify-rocks.herokuapp.com/home/' + person + '/'
+  var loc = window.location;
+  let hsStart = 'http://'
+  if (loc.protocol == 'https:'){
+      hsStart = 'https://'
+  }
+  let address = hsStart + loc.host + '/home/' + person + '/'
   console.log(address)
   location.replace(address)
 
