@@ -14,5 +14,11 @@ pip install -r requirements.txt
 python manage.py runserver
 ```
 
+## Deployment
+I would advise heroku for deploment. It provides all the necessary resources with one line of command without any hastle. Deployment is same as normal django app on heroku except for instead of gunicorn , daphne server will be used since we have to handle http as well as web socket requests. A detailed guide can be found at 
+https://www.codingforentrepreneurs.com/blog/django-channels-to-production/
+
+An example of app running on live stream : https://lit-earth.herokuapp.com/
+
 ## Additional notes
 The app can cause problems while setting up in Windows operating system. I had a hard time setting up channel layers with redis-server on windows. So I would advise that ,if possible, use ubuntu for installation.
